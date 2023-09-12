@@ -20,7 +20,7 @@ const register_def =
     \\        const Self = @This();
     \\
     \\        pub fn init(address: usize) Self {
-    \\            return Self{ .raw_ptr = @intToPtr(*volatile u32, address) };
+    \\            return Self{ .raw_ptr = @ptrFromInt(address) };
     \\        }
     \\
     \\        pub fn initRange(address: usize, comptime dim_increment: usize, comptime num_registers: usize) [num_registers]Self {
