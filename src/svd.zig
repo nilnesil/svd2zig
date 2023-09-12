@@ -3,7 +3,6 @@ const builtin = @import("builtin");
 const ArrayList = std.ArrayList;
 const Allocator = std.mem.Allocator;
 const AutoHashMap = std.AutoHashMap;
-const min = std.math.min;
 const warn = std.debug.warn;
 
 /// Top Level
@@ -432,7 +431,7 @@ pub const Register = struct {
     fn alignedEndOfUnusedChunk(chunk_start: u32, last_unused: u32) u32 {
         // Next multiple of 8 from chunk_start + 1
         const next_multiple = (chunk_start + 8) & ~@as(u32, 7);
-        return min(next_multiple, last_unused);
+        return @min(next_multiple, last_unused);
     }
 
     fn writeUnusedField(first_unused: u32, last_unused: u32, reg_reset_value: u32, out_stream: anytype) !void {
@@ -441,7 +440,9 @@ pub const Register = struct {
         // to this bug https://github.com/ziglang/zig/issues/2627
         var chunk_start = first_unused;
         var chunk_end = alignedEndOfUnusedChunk(chunk_start, last_unused);
+
         try out_stream.print("\n/// unused [{}:{}]", .{ first_unused, last_unused - 1 });
+
         while (chunk_start < last_unused) : ({
             chunk_start = chunk_end;
             chunk_end = alignedEndOfUnusedChunk(chunk_start, last_unused);
@@ -470,7 +471,7 @@ pub const Register = struct {
         , .{ name, name });
 
         // Sort fields from LSB to MSB for next step
-        std.sort.sort(Field, self.fields.items, {}, fieldsSortCompare);
+        std.sort.pdq(Field, self.fields.items, {}, fieldsSortCompare);
 
         var last_uncovered_bit: u32 = 0;
         for (self.fields.items) |field| {

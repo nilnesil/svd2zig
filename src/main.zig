@@ -33,7 +33,7 @@ const register_def =
     \\        }
     \\
     \\        pub fn read(self: Self) Read {
-    \\            return @bitCast(Read, self.raw_ptr.*);
+    \\            return @bitCast(self.raw_ptr.*);
     \\        }
     \\
     \\        pub fn write(self: Self, value: Write) void {
@@ -43,7 +43,7 @@ const register_def =
     \\            // modify MMIO registers that only allow word-sized stores.
     \\            // https://github.com/ziglang/zig/issues/8981#issuecomment-854911077
     \\            const aligned: Write align(4) = value;
-    \\            self.raw_ptr.* = @ptrCast(*const u32, &aligned).*;
+    \\            self.raw_ptr.* = @as(*volatile u32, @ptrCast(&aligned)).*;
     \\        }
     \\
     \\        pub fn modify(self: Self, new_value: anytype) void {
@@ -84,13 +84,13 @@ pub fn main() anyerror!void {
 
     const allocator = arena.allocator();
 
-    var args = std.process.args();
+    var args = std.process.argsWithAllocator(allocator) catch |err| return err;
 
-    _ = args.next(allocator); // skip application name
+    _ = args.next(); // skip application name
     // Note memory will be freed on exit since using arena
 
-    const file_name = try args.next(allocator) orelse return error.MandatoryFilenameArgumentNotGiven;
-    const file = try std.fs.cwd().openFile(file_name, .{ .read = true, .write = false });
+    const file_name = if (args.next()) |f_n| f_n else return error.MandatoryFilenameArgumentNotGiven;
+    const file = try std.fs.cwd().openFile(file_name, .{ .mode = .read_write });
 
     const stream = &file.reader();
 
