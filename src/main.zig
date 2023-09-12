@@ -85,6 +85,7 @@ pub fn main() anyerror!void {
     const allocator = arena.allocator();
 
     var args = std.process.argsWithAllocator(allocator) catch |err| return err;
+    defer args.deinit();
 
     _ = args.next(); // skip application name
     // Note memory will be freed on exit since using arena
