@@ -1,0 +1,3 @@
+[submodule "src/svd2zig-core"]
+	path = src/svd2zig-core
+	url = git@github.com:nilnesil/svd2zig-core.git
