@@ -30,7 +30,7 @@ zig build -Drelease-safe
 ## Usage:
 
 ```
-./zig-cache/bin/svd2zig path/to/svd/file > path/to/output.zig
+./zig-cache/bin/svd2zig path/to/svd/file path/to/output.zig
 zig fmt path/to/output.zig
 ```
 

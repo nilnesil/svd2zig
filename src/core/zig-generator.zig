@@ -1,5 +1,7 @@
 const std = @import("std");
 const svd = @import("svd.zig");
+const Reader = std.fs.File.Reader;
+const Writer = std.fs.File.Writer;
 const mem = std.mem;
 const Allocator = mem.Allocator;
 const ascii = std.ascii;
@@ -162,18 +164,13 @@ fn concat2(comptime T: type, allocator: Allocator, slice1: []const T, slice2: []
     return slice;
 }
 
-pub fn generate(allocator: Allocator, filename: []const u8, dir: []const u8) anyerror!void {
-    const file = std.fs.cwd().openFile(filename, .{ .mode = .read_only }) catch |err| return err;
-    defer file.close();
-
-    const stream = &file.reader();
-
+pub fn generate(allocator: Allocator, reader: *const Reader, writer: *const Writer) anyerror!void {
     var state = SvdParseState.Device;
     var dev = try svd.Device.init(allocator);
     defer dev.deinit();
 
     var cur_interrupt: svd.Interrupt = undefined;
-    while (try stream.readUntilDelimiterOrEof(&line_buffer, '\n')) |line| {
+    while (try reader.readUntilDelimiterOrEof(&line_buffer, '\n')) |line| {
         if (line.len == 0) {
             break;
         }
@@ -467,12 +464,6 @@ pub fn generate(allocator: Allocator, filename: []const u8, dir: []const u8) any
 
     if (state != .Finished) return error.InvalidXML;
 
-    var newfilename = concat2(u8, allocator, dir, "/registers.zig") catch |err| return err;
-    defer allocator.free(newfilename);
-
-    const out = std.fs.cwd().createFile(newfilename, .{}) catch |err| return err;
-    defer out.close();
-
-    out.writer().print("{s}\n", .{register_def}) catch |err| return err;
-    out.writer().print("{}\n", .{dev}) catch |err| return err;
+    writer.print("{s}\n", .{register_def}) catch |err| return err;
+    writer.print("{}\n", .{dev}) catch |err| return err;
 }
