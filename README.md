@@ -30,7 +30,7 @@ zig build -Drelease-safe
 ## Usage:
 
 ```
-./zig-cache/bin/svd2zig path/to/svd/file path/to/output.zig
+./zig-out/bin/svd2zig path/to/svd/file path/to/output.zig
 zig fmt path/to/output.zig
 ```
 
@@ -51,30 +51,21 @@ pub fn main() void {
     systemInit();
 
     // Enable GPIOC port
-    regs.RCC.APB2ENR.modify(.{ .IOPCEN = 1 });
+    regs.RCC.APB2ENR.IOPCEN = 1;
 
     // Set pin 13 mode to general purpose output
-    regs.GPIOC.CRH.modify(.{
-        .MODE13 = 0b01,
-    });
+    regs.GPIOC.CRH.MODE13 = 0b01;
 
     // Set pin 13
-    regs.GPIOC.BSRR.modify(.{
-        .BS13 = 1,
-    });
+    regs.GPIOC.BSRR.BS13 = 1;
 
     while (true) {
-        // Read the LED state
-        var leds_state = regs.GPIOC.IDR.read();
         // Set the LED output to the negation of the currrent output
-        regs.GPIOC.ODR.modify(.{
-            .ODR13 = ~leds_state.IDR13,
-        });
+        regs.GPIOC.ODR.ODR13 = ~regs.GPIOC.IDR.IDR13;
 
         // Sleep for some time
         var i: u32 = 0;
         while (i < 6000000) {
-            asm volatile ("nop");
             i += 1;
         }
     }
@@ -92,50 +83,48 @@ fn systemInit() void {
     // regs.FPU_CPACR.CPACR.modify(.{ .CP = 0b11 });
 
     // Enable HSI
-    regs.RCC.CR.modify(.{ .HSION = 1 });
+    regs.RCC.CR.HSION = 1;
 
     // Wait for HSI ready
-    while (regs.RCC.CR.read().HSIRDY != 1) {}
+    while (regs.RCC.CR.HSIRDY != 1) {}
 
     // Select HSI as clock source
-    regs.RCC.CFGR.modify(.{ .SW = 0 });
+    regs.RCC.CFGR.SW = 0;
 
     // Enable external high-speed oscillator (HSE)
-    regs.RCC.CR.modify(.{ .HSEON = 1 });
+    regs.RCC.CR.HSEON = 1;
 
     // Wait for HSE ready
-    while (regs.RCC.CR.read().HSERDY != 1) {}
+    while (regs.RCC.CR.HSERDY != 1) {}
 
     // Set prescalers for 72 MHz: HPRE = 0, PPRE1 = DIV_2, PPRE2 = 0
-    regs.RCC.CFGR.modify(.{ .PPRE1 = 0b100 });
+    regs.RCC.CFGR.PPRE1 = 0b100;
 
     // Disable PLL before changing its configuration
-    regs.RCC.CR.modify(.{ .PLLON = 0 });
+    regs.RCC.CR.PLLON = 0;
 
     // Set PLL prescalers and HSE clock source
-    regs.RCC.CFGR.modify(.{
-        .PLLSRC = 1,
-        .PLLMUL = 9,
-    });
+        regs.RCC.CFGR.PLLSRC = 1;
+    regs.RCC.CFGR.PLLMUL = 9;
 
     // Enable PLL
-    regs.RCC.CR.modify(.{ .PLLON = 1 });
+    regs.RCC.CR.PLLON = 1;
 
     // Wait for PLL ready
-    while (regs.RCC.CR.read().PLLRDY != 1) {}
+    while (regs.RCC.CR.PLLRDY != 1) {}
 
     // Enable flash data and instruction cache and set flash latency to 2 wait states
-    regs.FLASH.ACR.modify(.{ .LATENCY = 0b010 });
+    regs.FLASH.ACR.LATENCY = 0b10;
 
     // Select PLL as clock source
-    regs.RCC.CFGR.modify(.{ .SW = 0b10 });
+    regs.RCC.CFGR.SW = 0b10;
 
     // // Wait for PLL selected as clock source
-    var cfgr = regs.RCC.CFGR.read();
-    while (cfgr.SWS != 0b10) : (cfgr = regs.RCC.CFGR.read()) {}
+    var cfgr = regs.RCC.CFGR;
+    while (cfgr.SWS != 0b10) {}
 
     // Disable HSI
-    regs.RCC.CR.modify(.{ .HSION = 0 });
+    regs.RCC.CR.HSION = 0;
 }
 ```
 ## Zig Version
