@@ -1,5 +1,5 @@
 const std = @import("std");
-const generator = @import("svd2zig-core/zig-generator.zig");
+const generator = @import("svd2zig");
 
 pub fn main() anyerror!void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);

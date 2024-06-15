@@ -1,15 +1,20 @@
 const std = @import("std");
-const Builder = std.build.Builder;
-const builtin = @import("builtin");
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const exe = b.addExecutable(.{
         .name = "svd2zig",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
+        .target = target,
         .optimize = optimize,
     });
+    const @"svd2zig-core" = b.dependency("svd2zig-core", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    _ = exe.root_module.addImport("svd2zig", @"svd2zig-core".module("svd2zig-core"));
 
-    b.default_step.dependOn(&exe.step);
     b.installArtifact(exe);
+    b.default_step.dependOn(&exe.step);
 }
