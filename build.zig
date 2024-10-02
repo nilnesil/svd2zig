@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    _ = exe.root_module.addImport("svd2zig", @"svd2zig-core".module("svd2zig-core"));
+    _ = exe.root_module.addImport("svd2zig", @"svd2zig-core".module("svd2zig-generator"));
 
     b.installArtifact(exe);
     b.default_step.dependOn(&exe.step);
