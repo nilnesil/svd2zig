@@ -1,6 +1,6 @@
 .{
     .name = "svd2zig",
-    .version = "0.1.0",
+    .version = "0.1.1",
     .dependencies = .{
         .@"svd2zig-core" = .{
             .url = "https://github.com/ginghalo/svd2zig-core/archive/refs/tags/0.1.2-raw_opt.tar.gz",
