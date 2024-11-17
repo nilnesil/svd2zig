@@ -3,8 +3,8 @@
     .version = "0.1.0",
     .dependencies = .{
         .@"svd2zig-core" = .{
-            .url = "https://github.com/ginghalo/svd2zig-core/archive/refs/tags/0.1.0-raw_opt.tar.gz",
-            .hash = "1220d60e86c33d4f2add7b4e86193e7046efa338aa9ad08ec4ad174077e9cec22f75",
+            .url = "https://github.com/ginghalo/svd2zig-core/archive/refs/tags/0.1.2-raw_opt.tar.gz",
+            .hash = "122007aafea75c3c88447391bf83fc603a2986fe38c865274cce26e4032c67b38e84",
         },
     },
     .paths = .{""},
